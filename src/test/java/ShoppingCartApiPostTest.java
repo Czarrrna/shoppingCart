@@ -40,7 +40,6 @@ public class ShoppingCartApiPostTest {
                 .body("currency", equalTo("GBP"));
     }
 
-
     @Test
     void testPostValidCartData() {
 
