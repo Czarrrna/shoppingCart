@@ -15,7 +15,7 @@ public class ShoppingCartAPIErrors {
 
 
     @Test
-    void testInternalServerError() {
+    void shouldReturnInternalServerErrorWhenBrokenPayloadIsSent() {
         String brokenPayload = "{ \"userID\": \"12345\", \"cartId\": null }";
 
         given()
@@ -29,24 +29,24 @@ public class ShoppingCartAPIErrors {
     }
 
     @Test
-    void testServiceUnavailable() {
+    void shouldReturnServiceUnavailableError() {
         given()
                 .contentType(ContentType.JSON)
                 .body("{}")
                 .when()
-                .post("/shoppingcart/order")
+                .post("/shoppingcart/order/503")
                 .then()
                 .statusCode(503)
                 .body("error", containsString("Service Unavailable"));
     }
 
     @Test
-    void testGatewayTimeout() {
+    void shouldReturnGatewayTimeoutError() {
         given()
                 .contentType(ContentType.JSON)
                 .body("{}")
                 .when()
-                .post("/shoppingcart/order?simulate=timeout")
+                .post("/shoppingcart/order/504")
                 .then()
                 .statusCode(504)
                 .body("error", containsString("Gateway Timeout"));

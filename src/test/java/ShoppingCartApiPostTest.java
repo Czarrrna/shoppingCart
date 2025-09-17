@@ -26,7 +26,7 @@ public class ShoppingCartApiPostTest {
     }
 
     @Test
-    void testCalculateTotalPrice() {
+    void shouldReturnCorrectGrandTotalPrice() {
         BigDecimal expectedTotal = new BigDecimal(81.97);
 
         given()
@@ -41,7 +41,7 @@ public class ShoppingCartApiPostTest {
     }
 
     @Test
-    void testPostValidCartData() {
+    void shouldCreateCartWithValidCartData() {
 
         given()
                 .contentType(ContentType.JSON)
@@ -54,7 +54,7 @@ public class ShoppingCartApiPostTest {
     }
 
     @Test
-    void testPostInvalidCartId() throws Exception {
+    void shouldRejectCartWithInvalidCartId() throws Exception {
         String invalidCartId = TestUtils.overrideCartId(payload, "test-12345");
 
         given()
@@ -69,7 +69,7 @@ public class ShoppingCartApiPostTest {
     }
 
     @Test
-    void testPostInvalidUserId() throws Exception {
+    void shouldRejectCartWithInvalidUserId() throws Exception {
         String invalidUserIdPayload = TestUtils.overrideUserId(payload, "99999");
 
         given()
@@ -83,8 +83,9 @@ public class ShoppingCartApiPostTest {
     }
 
     @Test
-    void testMissingCartId() throws Exception {
+    void shouldRejectCartWithMissingCartId() throws Exception {
         String missingCartId = TestUtils.removeField(payload, "cartId");
+
         given()
                 .contentType(ContentType.JSON)
                 .body(missingCartId)
@@ -96,8 +97,9 @@ public class ShoppingCartApiPostTest {
     }
 
     @Test
-    void testMissingUserId() throws Exception {
+    void shouldRejectCartWithMissingUserId() throws Exception {
         String missingUserId = TestUtils.removeField(payload, "userId");
+
         given()
                 .contentType(ContentType.JSON)
                 .body(missingUserId)
@@ -109,8 +111,9 @@ public class ShoppingCartApiPostTest {
     }
 
     @Test
-    void testMissingItems() throws Exception {
+    void shouldRejectCartWithMissingItems() throws Exception {
         String missingItems = TestUtils.removeField(payload, "items");
+
         given()
                 .contentType(ContentType.JSON)
                 .body(missingItems)
