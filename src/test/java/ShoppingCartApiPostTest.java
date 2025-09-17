@@ -26,7 +26,7 @@ public class ShoppingCartApiPostTest {
     }
 
     @Test
-    void testCalculateGrandTotalPrice() {
+    void testCalculateTotalPrice() {
         BigDecimal expectedTotal = new BigDecimal(81.97);
 
         given()
@@ -39,6 +39,7 @@ public class ShoppingCartApiPostTest {
                 .body("grandTotal", equalTo(expectedTotal))
                 .body("currency", equalTo("GBP"));
     }
+
 
     @Test
     void testPostValidCartData() {
@@ -70,7 +71,7 @@ public class ShoppingCartApiPostTest {
 
     @Test
     void testPostInvalidUserId() throws Exception {
-        String invalidUserIdPayload = TestUtils.overrideUserId(payload, "test-12345");
+        String invalidUserIdPayload = TestUtils.overrideUserId(payload, "99999");
 
         given()
                 .contentType(ContentType.JSON)
@@ -89,7 +90,7 @@ public class ShoppingCartApiPostTest {
                 .contentType(ContentType.JSON)
                 .body(missingCartId)
                 .when()
-                .post("/shoppingcart/calculate")
+                .post("/shoppingcart/order")
                 .then()
                 .statusCode(400)
                 .body("error", containsString("cartId is required"));
@@ -102,7 +103,7 @@ public class ShoppingCartApiPostTest {
                 .contentType(ContentType.JSON)
                 .body(missingUserId)
                 .when()
-                .post("/shoppingcart/calculate")
+                .post("/shoppingcart/order")
                 .then()
                 .statusCode(400)
                 .body("error", containsString("userId is required"));
@@ -115,7 +116,7 @@ public class ShoppingCartApiPostTest {
                 .contentType(ContentType.JSON)
                 .body(missingItems)
                 .when()
-                .post("/shoppingcart/calculate")
+                .post("/shoppingcart/order")
                 .then()
                 .statusCode(400)
                 .body("error", containsString("Items are required"));

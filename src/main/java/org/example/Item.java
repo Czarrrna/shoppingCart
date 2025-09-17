@@ -6,5 +6,4 @@ public class Item {
         private int quantity;
         private double price;
         private String currency;
-        // getters and setters
     }
