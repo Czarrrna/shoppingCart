@@ -1,4 +1,5 @@
 package org.example;
+import java.util.Collection;
 import java.util.List;
 
 public class ShoppingCart {
@@ -9,6 +10,9 @@ public class ShoppingCart {
 
     public void setUserID(Object o) {
     }
-    // getters and setters
+
+    public Collection<Object> getItems() {
+        return List.of();
     }
+}
 
