@@ -15,7 +15,7 @@ public class ShoppingCartAPIGetTest {
     }
 
     @Test
-    void testGetCartByIdSuccess() {
+    void shouldGetCartByIdSuccess() {
         String cartId = "abcde-67890";
 
         given()
@@ -32,7 +32,7 @@ public class ShoppingCartAPIGetTest {
     }
 
     @Test
-    void testGetCartByIdNotFound() {
+    void shouldRejectGettingCartByIdNotFound() {
         String invalidCartId = "abcde-99999";
 
         given()
@@ -45,7 +45,7 @@ public class ShoppingCartAPIGetTest {
     }
 
     @Test
-    void testGetCartByIdInvalidFormat() {
+    void shouldRejectGettingCartByIdInvalidFormat() {
         String invalidFormatCartId = "123";
 
         given()
