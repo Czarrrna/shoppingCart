@@ -26,7 +26,7 @@ public class ShoppingCartApiPostTest {
     }
 
     @Test
-    void shouldReturnCorrectGrandTotalPrice() {
+    void shouldCreateCartWithValidCartDataAndReturnCorrectGrandTotalPrice() {
         BigDecimal expectedTotal = new BigDecimal(81.97);
 
         given()
@@ -37,29 +37,17 @@ public class ShoppingCartApiPostTest {
                 .then()
                 .statusCode(201)
                 .body("grandTotal", equalTo(expectedTotal))
-                .body("currency", equalTo("GBP"));
-    }
-
-    @Test
-    void shouldCreateCartWithValidCartData() {
-
-        given()
-                .contentType(ContentType.JSON)
-                .body(payload)
-                .when()
-                .post("/shoppingcart/order")
-                .then()
-                .statusCode(201)
+                .body("currency", equalTo("GBP"))
                 .body("message", equalTo("Successfully created."));
     }
 
     @Test
     void shouldRejectCartWithInvalidCartId() throws Exception {
-        String invalidCartId = TestUtils.overrideCartId(payload, "test-12345");
+        String invalidCartIdPayload = TestUtils.overrideField(payload, "cartId","abcde-00000");
 
         given()
                 .contentType(ContentType.JSON)
-                .body(invalidCartId)
+                .body(invalidCartIdPayload)
                 .when()
                 .post("/shoppingcart/order")
                 .then()
@@ -69,8 +57,23 @@ public class ShoppingCartApiPostTest {
     }
 
     @Test
+    void shouldRejectCartWithInvalidCartIdFormat() throws Exception {
+        String invalidCartIdFormatPayload = TestUtils.overrideField(payload, "cartId","0001");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(invalidCartIdFormatPayload)
+                .when()
+                .post("/shoppingcart/order")
+                .then()
+                .statusCode(400)
+                .body("error", equalTo("cartId format is incorrect"));
+
+    }
+
+    @Test
     void shouldRejectCartWithInvalidUserId() throws Exception {
-        String invalidUserIdPayload = TestUtils.overrideUserId(payload, "99999");
+        String invalidUserIdPayload = TestUtils.overrideField(payload, "userId", "99999");
 
         given()
                 .contentType(ContentType.JSON)
@@ -83,12 +86,153 @@ public class ShoppingCartApiPostTest {
     }
 
     @Test
-    void shouldRejectCartWithMissingCartId() throws Exception {
-        String missingCartId = TestUtils.removeField(payload, "cartId");
+    void shouldRejectCartWithInvalidProductId() throws Exception {
+        String invalidProductIdPayload = TestUtils.overrideNestedFieldAtIndex(payload, "items", 0, "productId", "SKU-999");
 
         given()
                 .contentType(ContentType.JSON)
-                .body(missingCartId)
+                .body(invalidProductIdPayload)
+                .when()
+                .post("/shoppingcart/order")
+                .then()
+                .statusCode(400)
+                .body("error", equalTo("invalid product id"));
+    }
+
+    @Test
+    void shouldRejectCartWithInvalidProductIdFormat() throws Exception {
+        String invalidProductIdFormatPayload = TestUtils.overrideNestedFieldAtIndex(payload, "items", 0, "productId", "SKU01");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(invalidProductIdFormatPayload)
+                .when()
+                .post("/shoppingcart/order")
+                .then()
+                .statusCode(400)
+                .body("error", equalTo("invalid product id format"));
+    }
+
+    @Test
+    void shouldRejectCartWithInvalidProductName() throws Exception {
+        String invalidProductNamePayload = TestUtils.overrideNestedFieldAtIndex(payload, "items", 0, "productName", "Monitor");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(invalidProductNamePayload)
+                .when()
+                .post("/shoppingcart/order")
+                .then()
+                .statusCode(400)
+                .body("error", equalTo("invalid product name"));
+    }
+
+    @Test
+    void shouldRejectCartWithInvalidCurrency() throws Exception {
+        String invalidCurrencyPayload = TestUtils.overrideNestedFieldAtIndex(payload, "items", 0, "currency", "XYZ");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(invalidCurrencyPayload)
+                .when()
+                .post("/shoppingcart/order")
+                .then()
+                .statusCode(400)
+                .body("error", equalTo("currency is incorrect"));
+    }
+
+    @Test
+    void shouldRejectCartWithTwoDifferentCurrencies() throws Exception {
+        String invalidCurrencyPayload = TestUtils.overrideNestedFieldAtIndex(payload, "items", 0, "currency", "USD");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(invalidCurrencyPayload)
+                .when()
+                .post("/shoppingcart/order")
+                .then()
+                .statusCode(400)
+                .body("error", equalTo("currency is inconsistent"));
+    }
+
+    @Test
+    void shouldRejectCartWithZeroQuantity() throws Exception {
+        String zeroQuantityPayload = TestUtils.overrideNestedFieldAtIndex(payload, "items", 0, "quantity", 0);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(zeroQuantityPayload)
+                .when()
+                .post("/shoppingcart/order")
+                .then()
+                .statusCode(400)
+                .body("error", equalTo("quantity is zero"));
+    }
+
+    @Test
+    void shouldRejectCartWithTooBigQuantity() throws Exception {
+        String tooBigQuantityPayload = TestUtils.overrideNestedFieldAtIndex(payload, "items", 0, "quantity", 1000);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(tooBigQuantityPayload)
+                .when()
+                .post("/shoppingcart/order")
+                .then()
+                .statusCode(400)
+                .body("error", equalTo("quantity is too big"));
+    }
+
+    @Test
+    void shouldRejectCartWithZeroPrice() throws Exception {
+        String zeroPricePayload = TestUtils.overrideNestedFieldAtIndex(payload, "items", 0, "price", 0);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(zeroPricePayload)
+                .when()
+                .post("/shoppingcart/order")
+                .then()
+                .statusCode(400)
+                .body("error", equalTo("currency is incorrect"));
+    }
+
+    @Test
+    void shouldRejectCartWithTimestampInFuture() throws Exception {
+        String invalidTimestampPayload = TestUtils.overrideField(payload, "timestamp", "2025-12-12T08:45:00Z");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(invalidTimestampPayload)
+                .when()
+                .post("/shoppingcart/order")
+                .then()
+                .statusCode(400)
+                .body("error", equalTo("timestamp is incorrect"));
+    }
+
+    @Test
+    void shouldRejectCartWithTimestampFarInPast() throws Exception {
+        String invalidTimestampPayload = TestUtils.overrideField(payload, "timestamp", "2000-09-12T08:45:00Z");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(invalidTimestampPayload)
+                .when()
+                .post("/shoppingcart/order")
+                .then()
+                .statusCode(400)
+                .body("error", equalTo("timestamp is incorrect"));
+    }
+
+
+    @Test
+    void shouldRejectCartWithMissingCartId() throws Exception {
+        String missingCartIdPayload = TestUtils.removeField(payload, "cartId");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(missingCartIdPayload)
                 .when()
                 .post("/shoppingcart/order")
                 .then()
