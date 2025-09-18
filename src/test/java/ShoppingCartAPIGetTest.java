@@ -28,7 +28,15 @@ public class ShoppingCartAPIGetTest {
                 .body("userID", equalTo("12345"))
                 .body("items.size()", equalTo(2))
                 .body("items[0].productId", equalTo("SKU-001"))
-                .body("items[1].productId", equalTo("SKU-002"));
+                .body("items[0].productName", equalTo("Wireless Mouse"))
+                .body("items[0].quantity", equalTo(2))
+                .body("items[0].price", equalTo(15.99))
+                .body("items[0].currency", equalTo("GBP"))
+                .body("items[1].productId", equalTo("SKU-002"))
+                .body("items[1].productName", equalTo("Wireless Keyboard"))
+                .body("items[1].quantity", equalTo(1))
+                .body("items[1].price", equalTo(49.99))
+                .body("items[1].currency", equalTo("GBP"));
     }
 
     @Test
@@ -56,6 +64,4 @@ public class ShoppingCartAPIGetTest {
                 .statusCode(400)
                 .body("error", equalTo("Invalid cartId format"));
     }
-
-
 }
