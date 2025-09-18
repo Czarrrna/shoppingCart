@@ -268,4 +268,18 @@ public class ShoppingCartApiPostTest {
                 .body("error", containsString("Items are required"));
     }
 
+    @Test
+    void shouldRejectCartWithEmptyItems() throws Exception {
+        String emptyItems = TestUtils.overrideField(payload, "items", "[]");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(emptyItems)
+                .when()
+                .post("/shoppingcart/order")
+                .then()
+                .statusCode(400)
+                .body("error", containsString("Items are empty"));
+    }
+
 }
